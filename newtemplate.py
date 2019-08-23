@@ -250,7 +250,7 @@ class Ui_MainWindow(object):
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.verticalLayout_2.addItem(spacerItem3)
         self.progressBar = QtWidgets.QProgressBar(self.groupBox_2)
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout_2.addWidget(self.progressBar)
         self.horizontalLayout.addWidget(self.groupBox_2)
@@ -297,11 +297,10 @@ class Ui_MainWindow(object):
         global point
         if (os.path.isfile(self.diretorio.text())):
             ca = carrega_video(self.diretorio.text())
-            ret, img = ca.read()
-            img = img[int(img.shape[0]*0.02):int(img.shape[0]*1),int(img.shape[1]*0.2):int(img.shape[1]*0.85)]
-            cv2.imwrite("imcut.png",img)
-            img = cv2.imread('imcut.png')
-            cv2.resize(img,(791,561))
+            ret, frame = ca.read()
+            frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
+            img = frame
+            img = cv2.resize(img,(580,400))
             cv2.imwrite("cut.png",img)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
@@ -317,11 +316,11 @@ class Ui_MainWindow(object):
         global video, point, t_x, t_y, im, max_blue, min_blue, max_green, min_green, max_red, min_red
         if(self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != ''):
             while True:
-                ret,img = video.read()
-                img = img[int(img.shape[0]*0.02):int(img.shape[0]*1),int(img.shape[1]*0.2):int(img.shape[1]*0.85)]
-                cv2.imwrite("imcut.png",img)
+                ret,frame = video.read()
+                frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
+                cv2.imwrite("imcut.png",frame)
                 img = cv2.imread('imcut.png')
-                cv2.resize(img,(791, 561))
+                img = cv2.resize(img,(580,400))
                 #img = cv2.imread(im_name)
                 cv2.namedWindow("De duplo click na abelha e tecle c ")
                 cv2.setMouseCallback("De duplo click na abelha e tecle c ", click)
@@ -379,14 +378,13 @@ class Ui_MainWindow(object):
             t_x*=2
             t_y*=2
             im.save("reg.png")
-            val = int(self.limiarcor.text())
+            val = int(self.Limiarmascara.text())
             t=20
-            im = binaria(im,reg,max_red,max_green,max_blue,int(self.limiarcor.text()))
+            im = binaria(im,reg,max_red,max_green,max_blue,int(self.Limiarmascara.text()))
             im.save('bg.png')
             cv2.imwrite("imcut.png",img)
             img = cv2.imread('imcut.png')
             img = soma_img(im,img)
-            cv2.resize(img,(791, 561))
             height, width, channel = img.shape
             bytesPerLine = 3 * width
             qimg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
@@ -420,15 +418,14 @@ class Ui_MainWindow(object):
             ret, frame = video.read()
             alti = frame.shape[0]
             proporcao = altr/alti
-            frame = frame[int(frame.shape[0]*0.02):int(frame.shape[0]*1),int(frame.shape[1]*0.2):int(frame.shape[1]*0.85)]
+            frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
             cv2.imwrite("imcut.png",frame)
             frame = cv2.imread('imcut.png')
-            cv2.resize(frame,(791,561))
+            frame = cv2.resize(frame,(580,400))
             im_points = np.ones((frame.shape[0], frame.shape[1], 3)) * 255
-            val = int(self.Limiarmascara.text())
+            val = int(self.limiarcor.text())
             val2 =val
-            ant = frame[point[0],point[1]]
-            ant = point
+            ant = [point[1],point[0]]
             d=0
             l = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
             cont = 5
@@ -444,14 +441,15 @@ class Ui_MainWindow(object):
                 os.mkdir(pasta)
             while (cont<l and stop):
                 ret, frame = video.read()
-                frame = frame[int(frame.shape[0]*0.02):int(frame.shape[0]*1),int(frame.shape[1]*0.2):int(frame.shape[1]*0.85)]
+                frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
                 cv2.imwrite("imcut.png",frame)
                 frame = cv2.imread('imcut.png')
-                cv2.resize(frame,(791,561))
+                frame = cv2.resize(frame,(580,400))
                 frame =soma_img(im,frame)
                 #frame = cv2.imread(im_name)
                 #print(val)
-                #val+=1
+                if(self.limiarcor.text() != ''):
+                    val = int(self.limiarcor.text())
                 rangomax = np.array([int(max_blue)+val,int(max_green)+val,int(max_red)+val])
                 rangomin = np.array([int(min_blue)-val2,int(min_green)-val2,int(min_red)-val2])
                 mask = cv2.inRange(frame,rangomin,rangomax)
@@ -497,12 +495,12 @@ class Ui_MainWindow(object):
             cv2.imwrite(pasta+"/pontos.png",im_points)
             pixmap = QPixmap(pasta +"/pontos.png")
             self.label.setPixmap(pixmap)
-            arquivo = open('resultados.txt', 'w')
+            arquivo = open(pasta+'/resultados.txt', 'w')
             arquivo.write('Distancia Percorrida : '+ self.distaciaPercrrida.text())
-            arquivo.write('Tempo de caminhamento : ' +self.tempocaminhamento.text())
-            arquivo.write('Velocidade média : ' + self.velocidademedia.text())
-            arquivo.write('Tempo de descanço : ' + self.tempodescanco.text())
-            arquivo.write('Tempo estacionario : ' + self.tempoestacionario.text())
+            arquivo.write('\nTempo de caminhamento : ' +self.tempocaminhamento.text())
+            arquivo.write('\nVelocidade média : ' + self.velocidademedia.text())
+            arquivo.write('\nTempo de descanço : ' + self.tempodescanco.text())
+            arquivo.write('\nTempo estacionario : ' + self.tempoestacionario.text())
             arquivo.close()
     def Parar(self):
         global stop
