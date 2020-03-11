@@ -1,0 +1,1 @@
+Distancia Percorrida : 100.20280635720489Tempo de caminhamento : 2.9171934127807617Velocidade média : 34.349044502225304Tempo de descanço : 1.532057762145996Tempo estacionario : 0.0

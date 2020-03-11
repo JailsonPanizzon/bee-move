@@ -97,14 +97,12 @@ def click(event, x, y, flags, param):
     global point
     if event == cv2.EVENT_LBUTTONDBLCLK:
         point = (y,x)
-        print(point)
         print("press c to confirm")
 def soma_img(im,frame):
     px = im.load()
     h =int(frame.shape[0]-2)
     l= int(frame.shape[1]-2)
-    print('h', h)
-    print('l',l)
+
 
     for i in range(1,h,1):
         for j in range(1,l,1):
@@ -300,7 +298,7 @@ class Ui_MainWindow(object):
             ret, frame = ca.read()
             frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
             img = frame
-            img = cv2.resize(img,(580,400))
+            img = cv2.resize(img,(406,280))
             cv2.imwrite("cut.png",img)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
@@ -320,7 +318,7 @@ class Ui_MainWindow(object):
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
                 cv2.imwrite("imcut.png",frame)
                 img = cv2.imread('imcut.png')
-                img = cv2.resize(img,(580,400))
+                img = cv2.resize(img,(406,280))
                 #img = cv2.imread(im_name)
                 cv2.namedWindow("De duplo click na abelha e tecle c ")
                 cv2.setMouseCallback("De duplo click na abelha e tecle c ", click)
@@ -392,8 +390,7 @@ class Ui_MainWindow(object):
             self.label.setPixmap(pixmap)
 
             cv2.imwrite('te.png',img)
-            print(int(max_blue),int(max_green),int(max_red))
-            print(int(min_blue),int(min_green),int(min_red))
+    
             im.save("reg.png")
             self.iniciar.setEnabled(True)
         else:
@@ -421,7 +418,7 @@ class Ui_MainWindow(object):
             frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
             cv2.imwrite("imcut.png",frame)
             frame = cv2.imread('imcut.png')
-            frame = cv2.resize(frame,(580,400))
+            frame = cv2.resize(frame,(406,280))
             im_points = np.ones((frame.shape[0], frame.shape[1], 3)) * 255
             val = int(self.limiarcor.text())
             val2 =val
@@ -439,17 +436,21 @@ class Ui_MainWindow(object):
             pasta= pasta + "/" + str(self.diretorio.text())
             if(not os.path.isdir(pasta)):
                 os.mkdir(pasta)
-            while (cont<l and stop):
+            tempoinitial = time.time()
+            if(self.limiarcor.text() != ''):
+                    val = int(self.limiarcor.text())
+            print(l)
+            while (cont<(l/2)-5 and stop):
+                print(cont)
                 ret, frame = video.read()
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
                 cv2.imwrite("imcut.png",frame)
                 frame = cv2.imread('imcut.png')
-                frame = cv2.resize(frame,(580,400))
+                frame = cv2.resize(frame,(406,280))
                 frame =soma_img(im,frame)
                 #frame = cv2.imread(im_name)
                 #print(val)
-                if(self.limiarcor.text() != ''):
-                    val = int(self.limiarcor.text())
+                
                 rangomax = np.array([int(max_blue)+val,int(max_green)+val,int(max_red)+val])
                 rangomin = np.array([int(min_blue)-val2,int(min_green)-val2,int(min_red)-val2])
                 mask = cv2.inRange(frame,rangomin,rangomax)
@@ -484,15 +485,16 @@ class Ui_MainWindow(object):
                 self.label.setPixmap(pixmap)
 
                 #time.sleep(1)
-                self.progressBar.setProperty("value", (cont*100)/l)
+                self.progressBar.setProperty("value", (cont*100)/((l/2)-10))
                 cont+=1
                 ret, frame = video.read()
                 k = cv2.waitKey(1) & 0xFF
-                print(d)
                 if k == 27:
                     break
-
-            cv2.imwrite(pasta+"/pontos.png",im_points)
+            print("ahhhhh")
+            tempofinalfinal = time.time() - tempoinitial
+            cv2.imwrite(pasta+"/pontos.png", im_points)
+            print(tempofinalfinal)
             pixmap = QPixmap(pasta +"/pontos.png")
             self.label.setPixmap(pixmap)
             arquivo = open(pasta+'/resultados.txt', 'w')
@@ -501,6 +503,7 @@ class Ui_MainWindow(object):
             arquivo.write('\nVelocidade média : ' + self.velocidademedia.text())
             arquivo.write('\nTempo de descanço : ' + self.tempodescanco.text())
             arquivo.write('\nTempo estacionario : ' + self.tempoestacionario.text())
+            arquivo.write('\nTempo de processamento : ' + str(tempofinalfinal))
             arquivo.close()
     def Parar(self):
         global stop
