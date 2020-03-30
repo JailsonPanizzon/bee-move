@@ -66,8 +66,9 @@ def binaria(im,reg,red,green,blue,val):
 
     im2 = Image.new('L',im.size,255)
     px = im.load()
-    limiar = (red+green+blue)/3
-    limiar += val*3
+
+    limiar = (int(red)+int(green)+int(blue))/6
+    limiar += val
     for i in range(1,im2.size[0]-1,1):
         for j in range(1,im2.size[1]-1,1):
             if px[i,j]< limiar and not([j,i] in reg):
@@ -311,7 +312,7 @@ class Ui_MainWindow(object):
             print("Diretório não existe")
 
     def selecionar(self):
-        global video, point, t_x, t_y, im, max_blue, min_blue, max_green, min_green, max_red, min_red
+        global video, point, t_x, t_y, im, max_blue, min_blue, max_green, min_green, max_red, min_red, media_green, media_red, media_blue
         if(self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != ''):
             while True:
                 ret,frame = video.read()
@@ -336,65 +337,78 @@ class Ui_MainWindow(object):
             im =Image.open('p.png')
             im = niveis_de_cinza(im)
             im = passaAlta(im)
-            reg = crescimento_regiao(point,im,20)
-            color = img[point[0],point[1]]
-            max_blue = color[1]
-            min_blue = color[1]
-            max_green = color[2]
-            min_green = color[2]
-            max_red = color[0]
-            min_red = color[0]
-            max_x= point[1]
-            max_y= point[0]
-            min_x=point[1]
-            min_y=point[0]
+            reg = crescimento_regiao(point, im, 20)
+            max_blue = img[point[0],point[1]][1]
+            min_blue = img[point[0],point[1]][1]
+            max_green = img[point[0],point[1]][2]
+            min_green = img[point[0],point[1]][2]
+            max_red = img[point[0],point[1]][0]
+            min_red = img[point[0],point[1]][0]
+            max_x = 0
+            max_y = 0
+            min_x = 10000000000
+            min_y = 10000000000
+            soma_red = int(img[point[0], point[1]][0])
+            soma_blue = int(img[point[0], point[1]][1])
+            soma_green = int(img[point[0], point[1]][2])
+            total = 1
             for i in reg:
-                color = img[i[0],i[1]]
-                img[i[0],i[1]] = (0,255,0)
+                color = img[i[0], i[1]]
+                soma_red += int(color[0])
+                soma_blue += int(color[1])
+                soma_green += int(color[2])
+                total += 1
                 if max_blue < color[1]:
                     max_blue = color[1]
-                elif min_blue > color[1]:
+                if min_blue > color[1] and color[1] > 0:
                     min_blue = color[1]
                 if max_green < color[2]:
                     max_green = color[2]
-                elif min_green > color[2]:
+                if min_green > color[2] and color[2] > 0:
                     min_green = color[2]
                 if max_red < color[0]:
                     max_red = color[0]
-                elif min_red > color[0]:
+                if min_red > color[0] and color[0] > 0:
                     min_red = color[0]
                 if max_x < i[0]:
-                    max_x=i[0]
-                elif min_x> i[0]:
-                    min_x=i[0]
-                if max_y< i[1]:
-                    max_y=i[1]
-                elif min_y> i[1]:
-                    min_y=i[1]
+                    max_x = i[0]
+                if min_x > i[0]:
+                    min_x = i[0]
+                if max_y < i[1]:
+                    max_y = i[1]
+                if min_y > i[1]:
+                    min_y = i[1]
+                img[i[0], i[1]] = (0, 255, 0)
+            print(soma_red)
+            media_green = soma_green / total
+            media_red = soma_red / total
+            media_blue = soma_blue / total
+            print(media_red)
             t_x = max_x-min_x
             t_y = max_y-min_y
-            t_x*=2
-            t_y*=2
+            t_x *= 2
+            t_y *= 2
             im.save("reg.png")
             val = int(self.Limiarmascara.text())
-            t=20
-            im = binaria(im,reg,max_red,max_green,max_blue,int(self.Limiarmascara.text()))
+            t = 20
+            im = binaria(im, reg, max_red, max_green, max_blue, val)
             im.save('bg.png')
-            cv2.imwrite("imcut.png",img)
+            cv2.imwrite("imcut.png", img)
             img = cv2.imread('imcut.png')
-            img = soma_img(im,img)
+            img = soma_img(im, img)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
             qimg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
             pixmap = QtGui.QPixmap.fromImage(qimg)
             self.label.setPixmap(pixmap)
 
-            cv2.imwrite('te.png',img)
+            cv2.imwrite('te.png', img)
     
             im.save("reg.png")
             self.iniciar.setEnabled(True)
         else:
             print("Informe todos os valores ")
+
     def avaliar(self):
         global stop
         if(self.alturavideo.text() == ''):
@@ -420,8 +434,6 @@ class Ui_MainWindow(object):
             frame = cv2.imread('imcut.png')
             frame = cv2.resize(frame,(406,280))
             im_points = np.ones((frame.shape[0], frame.shape[1], 3)) * 255
-            val = int(self.limiarcor.text())
-            val2 =val
             ant = [point[1],point[0]]
             d=0
             l = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -437,32 +449,46 @@ class Ui_MainWindow(object):
             if(not os.path.isdir(pasta)):
                 os.mkdir(pasta)
             tempoinitial = time.time()
-            if(self.limiarcor.text() != ''):
-                    val = int(self.limiarcor.text())
-            print(l)
+            val = int(self.limiarcor.text())
+            print(val)
+            max_colors = [media_blue, media_green, media_red]
+            min_colors = [media_blue, media_green, media_red]
+            if media_blue + val < 245:
+                max_colors[0] = media_blue + val
+            if media_green + val < 245:
+                max_colors[1] = media_green + val
+            if media_red + val < 245:
+                max_colors[2] = media_red + val
+            if media_blue - val > 1:
+                min_colors[0] = media_blue - val
+            if media_green - val > 1:
+                min_colors[1] = media_green - val
+            if media_red - val > 1:
+                min_colors[2] = media_red - val
+
+            rangomax = np.array(max_colors)
+            rangomin = np.array(min_colors)
+
             while (cont<(l/2)-5 and stop):
-                print(cont)
+                #print(cont)
                 ret, frame = video.read()
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
                 cv2.imwrite("imcut.png",frame)
                 frame = cv2.imread('imcut.png')
                 frame = cv2.resize(frame,(406,280))
-                frame =soma_img(im,frame)
+                frame = soma_img(im,frame)
                 #frame = cv2.imread(im_name)
                 #print(val)
-                
-                rangomax = np.array([int(max_blue)+val,int(max_green)+val,int(max_red)+val])
-                rangomin = np.array([int(min_blue)-val2,int(min_green)-val2,int(min_red)-val2])
-                mask = cv2.inRange(frame,rangomin,rangomax)
+                mask = cv2.inRange(frame, rangomin, rangomax)
                 opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
                 x, y, w, h = cv2.boundingRect(opening)
-                if x!=0 or y!=0:
-                    if w < t_x and h<t_y:
+                if x!= 0 or y != 0:
+                    if w < t_x and h < t_y:
                         if cont>4:
                             dant = math.sqrt((ant[0]-x+w//2)**2+(ant[1]-y+h//2)**2)
                             tempoAdd = time.time() - newT
-                            if(dant>10 or dant>10):
+                            print(dant)
+                            if(dant > 20):
                                 tempocaminhamento += tempoAdd
                                 self.tempocaminhamento.setText(str(tempocaminhamento))
                             else:
@@ -476,8 +502,8 @@ class Ui_MainWindow(object):
                             self.velocidademedia.setText(str((d*proporcao)/(fim-inicio)))
 
                             ant = (x+w//2, y+h//2)
-                        cv2.rectangle(frame, (x, y), (x+w, y + h), (0, 255, 0), 3)
                         cv2.imwrite(pasta+"/point_ui.png",im_points)
+                    cv2.rectangle(frame, (x, y), (x+w, y + h), (0, 255, 0), 2)
                 height, width, channel = frame.shape
                 bytesPerLine = 3 * width
                 qimg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888)
@@ -491,7 +517,6 @@ class Ui_MainWindow(object):
                 k = cv2.waitKey(1) & 0xFF
                 if k == 27:
                     break
-            print("ahhhhh")
             tempofinalfinal = time.time() - tempoinitial
             cv2.imwrite(pasta+"/pontos.png", im_points)
             print(tempofinalfinal)
