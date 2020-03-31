@@ -67,7 +67,7 @@ def binaria(im,reg,red,green,blue,val):
     im2 = Image.new('L',im.size,255)
     px = im.load()
 
-    limiar = (int(red)+int(green)+int(blue))/6
+    limiar = (int(red)+int(green)+int(blue))/12
     limiar += val
     for i in range(1,im2.size[0]-1,1):
         for j in range(1,im2.size[1]-1,1):
@@ -108,8 +108,6 @@ def soma_img(im,frame):
     for i in range(1,h,1):
         for j in range(1,l,1):
             if px[j,i] == 255:
-                frame[i][j][0] = 255
-                frame[i][j][1] = 255
                 frame[i][j][2] = 255
 
     return frame
@@ -174,11 +172,23 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout()
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.Limiarmascara = QtWidgets.QLineEdit(self.groupBox_2)
-        self.Limiarmascara.setText("")
+        self.Limiarmascara.setText("100")
         self.Limiarmascara.setObjectName("Limiarmascara")
         self.gridLayout_2.addWidget(self.Limiarmascara, 3, 1, 1, 1)
         self.labelLimiarmascara = QtWidgets.QLabel(self.groupBox_2)
         self.labelLimiarmascara.setObjectName("labelLimiarmascara")
+        self.gridLayout_2.addWidget(self.labelLimiarmascara, 3, 0, 1, 1)
+        self.labelDuracaoVideo = QtWidgets.QLabel(self.groupBox_2)
+        self.labelDuracaoVideo.setObjectName("labelDuracaoVideo")
+        self.gridLayout_2.addWidget(self.labelDuracaoVideo, 4, 0, 1, 1)
+        self.minDuracao = QtWidgets.QLineEdit(self.groupBox_2)
+        self.minDuracao.setText("00")
+        self.minDuracao.setObjectName("minDuracao")
+        self.gridLayout_2.addWidget(self.minDuracao, 4, 1, 1, 1)
+        self.secDuracao = QtWidgets.QLineEdit(self.groupBox_2)
+        self.secDuracao.setText("00")
+        self.secDuracao.setObjectName("secDuracao")
+        self.gridLayout_2.addWidget(self.secDuracao, 4, 2, 1, 1)
         self.gridLayout_2.addWidget(self.labelLimiarmascara, 3, 0, 1, 1)
         self.labelAltura = QtWidgets.QLabel(self.groupBox_2)
         self.labelAltura.setObjectName("labelAltura")
@@ -188,7 +198,7 @@ class Ui_MainWindow(object):
         self.alturavideo.setObjectName("alturavideo")
         self.gridLayout_2.addWidget(self.alturavideo, 1, 1, 1, 1)
         self.limiarcor = QtWidgets.QLineEdit(self.groupBox_2)
-        self.limiarcor.setText("")
+        self.limiarcor.setText("50")
         self.limiarcor.setObjectName("limiarcor")
         self.gridLayout_2.addWidget(self.limiarcor, 2, 1, 1, 1)
         self.labelLimiarcor = QtWidgets.QLabel(self.groupBox_2)
@@ -215,33 +225,39 @@ class Ui_MainWindow(object):
         self.labeltempcaminhamento = QtWidgets.QLabel(self.groupBox_2)
         self.labeltempcaminhamento.setObjectName("labeltempcaminhamento")
         self.gridLayout_4.addWidget(self.labeltempcaminhamento, 2, 0, 1, 1)
-        self.tempoestacionario = QtWidgets.QLabel(self.groupBox_2)
-        self.tempoestacionario.setObjectName("tempoestacionario")
-        self.gridLayout_4.addWidget(self.tempoestacionario, 8, 1, 1, 1)
+        #self.tempoestacionario = QtWidgets.QLabel(self.groupBox_2)
+        #self.tempoestacionario.setObjectName("tempoestacionario")
+        #self.gridLayout_4.addWidget(self.tempoestacionario, 8, 1, 1, 1)
         self.labeltempodescanco = QtWidgets.QLabel(self.groupBox_2)
         self.labeltempodescanco.setObjectName("labeltempodescanco")
-        self.gridLayout_4.addWidget(self.labeltempodescanco, 7, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.labeltempodescanco, 6, 0, 1, 1)
         self.labeldistanciapercorrida = QtWidgets.QLabel(self.groupBox_2)
         self.labeldistanciapercorrida.setObjectName("labeldistanciapercorrida")
         self.gridLayout_4.addWidget(self.labeldistanciapercorrida, 0, 0, 1, 1)
-        self.labeltempoestacionario = QtWidgets.QLabel(self.groupBox_2)
-        self.labeltempoestacionario.setObjectName("labeltempoestacionario")
-        self.gridLayout_4.addWidget(self.labeltempoestacionario, 8, 0, 1, 1)
+        #self.labeltempoestacionario = QtWidgets.QLabel(self.groupBox_2)
+        #self.labeltempoestacionario.setObjectName("labeltempoestacionario")
+        #self.gridLayout_4.addWidget(self.labeltempoestacionario, 8, 0, 1, 1)
         self.tempodescanco = QtWidgets.QLabel(self.groupBox_2)
         self.tempodescanco.setObjectName("tempodescanco")
-        self.gridLayout_4.addWidget(self.tempodescanco, 7, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.tempodescanco, 6, 1, 1, 1)
         self.distaciaPercrrida = QtWidgets.QLabel(self.groupBox_2)
         self.distaciaPercrrida.setObjectName("distaciaPercrrida")
         self.gridLayout_4.addWidget(self.distaciaPercrrida, 0, 1, 1, 1)
         self.velocidademedia = QtWidgets.QLabel(self.groupBox_2)
         self.velocidademedia.setObjectName("velocidademedia")
-        self.gridLayout_4.addWidget(self.velocidademedia, 5, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.velocidademedia, 1, 1, 1, 1)
         self.tempocaminhamento = QtWidgets.QLabel(self.groupBox_2)
         self.tempocaminhamento.setObjectName("tempocaminhamento")
         self.gridLayout_4.addWidget(self.tempocaminhamento, 2, 1, 1, 1)
+        self.tempovideo = QtWidgets.QLabel(self.groupBox_2)
+        self.tempovideo.setObjectName("tempovideo")
+        self.gridLayout_4.addWidget(self.tempovideo, 7, 1, 1, 1)
+        self.labeltempovideo = QtWidgets.QLabel(self.groupBox_2)
+        self.labeltempovideo.setObjectName("labeltempovideo")
+        self.gridLayout_4.addWidget(self.labeltempovideo, 7, 0, 1, 1)
         self.labelvelocidademedia = QtWidgets.QLabel(self.groupBox_2)
         self.labelvelocidademedia.setObjectName("labelvelocidademedia")
-        self.gridLayout_4.addWidget(self.labelvelocidademedia, 5, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.labelvelocidademedia, 1, 0, 1, 1)
         self.verticalLayout_2.addLayout(self.gridLayout_4)
         self.pushButton = QtWidgets.QPushButton(self.groupBox_2)
         self.pushButton.setObjectName("pushButton")
@@ -270,19 +286,22 @@ class Ui_MainWindow(object):
         self.labelNome.setText(_translate("MainWindow", "Nome ou diretório do video:"))
         self.carregar.setText(_translate("MainWindow", "Carregar"))
         self.labelLimiarmascara.setText(_translate("MainWindow", "Limiar de mascarade ruidos"))
+        self.labelDuracaoVideo.setText(_translate("MainWindow", "Duração do vídeo"))
         self.labelAltura.setText(_translate("MainWindow", "Altura do video"))
         self.labelLimiarcor.setText(_translate("MainWindow", "Limiar de cor"))
         self.selecionarAelha.setText(_translate("MainWindow", "Selecionar abelha"))
         self.iniciar.setText(_translate("MainWindow", "Iniciar"))
         self.labeltempcaminhamento.setText(_translate("MainWindow", "Tempo de caminhamento"))
-        self.tempoestacionario.setText(_translate("MainWindow", "0.0"))
+        #self.tempoestacionario.setText(_translate("MainWindow", "0.0"))
         self.labeltempodescanco.setText(_translate("MainWindow", "Tempo de descanço"))
         self.labeldistanciapercorrida.setText(_translate("MainWindow", "Distancia Percorrida"))
-        self.labeltempoestacionario.setText(_translate("MainWindow", "Tempo estacionário"))
+        #self.labeltempoestacionario.setText(_translate("MainWindow", "Tempo estacionário"))
+        self.labeltempovideo.setText(_translate("MainWindow", "Tempo do video:"))
         self.tempodescanco.setText(_translate("MainWindow", "0.0"))
         self.distaciaPercrrida.setText(_translate("MainWindow", "0.0"))
         self.velocidademedia.setText(_translate("MainWindow", "0.0"))
         self.tempocaminhamento.setText(_translate("MainWindow", "0.0"))
+        self.tempovideo.setText(_translate("MainWindow", "0.0"))
         self.labelvelocidademedia.setText(_translate("MainWindow", "Velocidade média"))
         self.pushButton.setText(_translate("MainWindow", "Parar"))
         self.carregar.clicked.connect(self.carregarvideo)
@@ -313,7 +332,7 @@ class Ui_MainWindow(object):
 
     def selecionar(self):
         global video, point, t_x, t_y, im, max_blue, min_blue, max_green, min_green, max_red, min_red, media_green, media_red, media_blue
-        if(self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != ''):
+        if(self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != '' and self.minDuracao.text() != '' and self.secDuracao.text() != ''):
             while True:
                 ret,frame = video.read()
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
@@ -379,11 +398,9 @@ class Ui_MainWindow(object):
                 if min_y > i[1]:
                     min_y = i[1]
                 img[i[0], i[1]] = (0, 255, 0)
-            print(soma_red)
             media_green = soma_green / total
             media_red = soma_red / total
             media_blue = soma_blue / total
-            print(media_red)
             t_x = max_x-min_x
             t_y = max_y-min_y
             t_x *= 2
@@ -405,13 +422,16 @@ class Ui_MainWindow(object):
             cv2.imwrite('te.png', img)
     
             im.save("reg.png")
+            time.sleep(1)
             self.iniciar.setEnabled(True)
         else:
             print("Informe todos os valores ")
 
     def avaliar(self):
         global stop
-        if(self.alturavideo.text() == ''):
+        stop = True
+        tempoReal = (int(self.minDuracao.text()) * 60) + (int(self.secDuracao.text()))
+        if(self.alturavideo.text() == '' and tempoReal > 10):
             self.w = MyPopup()
             self.w.setGeometry(QRect(100, 100, 400, 200))
             self.w.show()
@@ -437,11 +457,9 @@ class Ui_MainWindow(object):
             ant = [point[1],point[0]]
             d=0
             l = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-            cont = 5
-            inicio = time.time()
+            cont = 1
             tempocaminhamento = 0
             tempodescanco = 0
-            newT = time.time()
             pasta = "Resultados"
             if(not os.path.isdir(pasta)):
                 os.mkdir(pasta)
@@ -450,85 +468,93 @@ class Ui_MainWindow(object):
                 os.mkdir(pasta)
             tempoinitial = time.time()
             val = int(self.limiarcor.text())
-            print(val)
-            max_colors = [media_blue, media_green, media_red]
-            min_colors = [media_blue, media_green, media_red]
+            max_colors = [245, 245, 245]
+            min_colors = [1, 1, 1]
             if media_blue + val < 245:
-                max_colors[0] = media_blue + val
+                max_colors[0] = int(media_blue) + val
             if media_green + val < 245:
-                max_colors[1] = media_green + val
+                max_colors[1] = int(media_green) + val
             if media_red + val < 245:
-                max_colors[2] = media_red + val
+                max_colors[2] = int(media_red) + val
             if media_blue - val > 1:
-                min_colors[0] = media_blue - val
+                min_colors[0] = int(media_blue) - val
             if media_green - val > 1:
-                min_colors[1] = media_green - val
+                min_colors[1] = int(media_green) - val
             if media_red - val > 1:
-                min_colors[2] = media_red - val
-
+                min_colors[2] = int(media_red) - val
             rangomax = np.array(max_colors)
             rangomin = np.array(min_colors)
 
-            while (cont<(l/2)-5 and stop):
-                #print(cont)
+            tempoFrame = tempoReal/l
+            passo = 5
+            cachetempo = 0
+            op = 0
+            while(op < passo and ret):
+                op += 1
                 ret, frame = video.read()
+            while (ret and stop):
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
-                cv2.imwrite("imcut.png",frame)
-                frame = cv2.imread('imcut.png')
+                #cv2.imwrite("imcut.png",frame)
+                #frame = cv2.imread('imcut.png')
                 frame = cv2.resize(frame,(406,280))
                 frame = soma_img(im,frame)
-                #frame = cv2.imread(im_name)
-                #print(val)
                 mask = cv2.inRange(frame, rangomin, rangomax)
                 opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
                 x, y, w, h = cv2.boundingRect(opening)
+                cachetempo += passo
                 if x!= 0 or y != 0:
                     if w < t_x and h < t_y:
                         if cont>4:
                             dant = math.sqrt((ant[0]-x+w//2)**2+(ant[1]-y+h//2)**2)
-                            tempoAdd = time.time() - newT
-                            print(dant)
-                            if(dant > 20):
-                                tempocaminhamento += tempoAdd
-                                self.tempocaminhamento.setText(str(tempocaminhamento))
+                            if(dant > 2 * passo):
+                                tempocaminhamento += cachetempo
+                                cachetempo = 0
+                                minvideocam = int((tempocaminhamento * tempoFrame) // 60)
+                                secvideocam = int((tempocaminhamento * tempoFrame) % 60)
+                                self.tempocaminhamento.setText(str(minvideocam) + ":" + str(secvideocam))
+                                d += dant
+                                self.distaciaPercrrida.setText(str(d*proporcao))
                             else:
-                                tempodescanco+= tempoAdd
-                                self.tempodescanco.setText(str(tempodescanco))
-                            newT = time.time()
+                                tempodescanco += cachetempo
+                                cachetempo = 0
+                                minvideodesc = int((tempodescanco * tempoFrame) // 60)
+                                secvideodesc = int((tempodescanco * tempoFrame) % 60)
+                                self.tempodescanco.setText(str(minvideodesc) + ":" + str(secvideodesc))
                             cv2.line(im_points,(ant[0],ant[1]),(x+w//2, y + h//2),0)
-                            d += dant
-                            self.distaciaPercrrida.setText(str(d*proporcao))
-                            fim = time.time()
-                            self.velocidademedia.setText(str((d*proporcao)/(fim-inicio)))
+
+                            self.velocidademedia.setText(str((d*proporcao)/(tempocaminhamento * tempoFrame)))
 
                             ant = (x+w//2, y+h//2)
                         cv2.imwrite(pasta+"/point_ui.png",im_points)
-                    cv2.rectangle(frame, (x, y), (x+w, y + h), (0, 255, 0), 2)
+                        cv2.rectangle(frame, (x, y), (x+w, y + h), (0, 255, 0), 2)
                 height, width, channel = frame.shape
                 bytesPerLine = 3 * width
                 qimg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qimg)
                 self.label.setPixmap(pixmap)
-
-                #time.sleep(1)
-                self.progressBar.setProperty("value", (cont*100)/((l/2)-10))
-                cont+=1
-                ret, frame = video.read()
+                cont += passo
+                minvideo = int((cont * tempoFrame) // 60)
+                secvideo = int((cont * tempoFrame) % 60)
+                self.tempovideo.setText(str(minvideo) + ":" + str(secvideo))
+                self.progressBar.setProperty("value", (cont*100)/(l-10))
+                op = 0
+                while(op < passo and ret):
+                    op += 1
+                    ret, frame = video.read()
                 k = cv2.waitKey(1) & 0xFF
                 if k == 27:
                     break
             tempofinalfinal = time.time() - tempoinitial
             cv2.imwrite(pasta+"/pontos.png", im_points)
-            print(tempofinalfinal)
             pixmap = QPixmap(pasta +"/pontos.png")
             self.label.setPixmap(pixmap)
+
             arquivo = open(pasta+'/resultados.txt', 'w')
-            arquivo.write('Distancia Percorrida : '+ self.distaciaPercrrida.text())
-            arquivo.write('\nTempo de caminhamento : ' +self.tempocaminhamento.text())
-            arquivo.write('\nVelocidade média : ' + self.velocidademedia.text())
-            arquivo.write('\nTempo de descanço : ' + self.tempodescanco.text())
-            arquivo.write('\nTempo estacionario : ' + self.tempoestacionario.text())
-            arquivo.write('\nTempo de processamento : ' + str(tempofinalfinal))
+            arquivo.write('Distancia Percorrida : ' + self.distaciaPercrrida.text() + '   (um)')
+            arquivo.write('\nTempo de caminhamento : ' + self.tempocaminhamento.text() + '   (MM:SS)')
+            arquivo.write('\nVelocidade média : ' + self.velocidademedia.text() + '   (um/s)')
+            arquivo.write('\nTempo de descanço : ' + self.tempodescanco.text() + '   (MM:SS)')
+            arquivo.write('\nTempo de processamento : ' + str(tempofinalfinal) + '   (SS)')
             arquivo.close()
     def Parar(self):
         global stop
