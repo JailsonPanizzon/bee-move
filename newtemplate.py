@@ -334,11 +334,11 @@ class Ui_MainWindow(object):
         global video, point, t_x, t_y, im, max_blue, min_blue, max_green, min_green, max_red, min_red, media_green, media_red, media_blue
         if(self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != '' and self.minDuracao.text() != '' and self.secDuracao.text() != ''):
             while True:
-                ret,frame = video.read()
+                ret, frame = video.read()
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
-                cv2.imwrite("imcut.png",frame)
+                cv2.imwrite("imcut.png", frame)
                 img = cv2.imread('imcut.png')
-                img = cv2.resize(img,(406,280))
+                img = cv2.resize(img, (406,280))
                 #img = cv2.imread(im_name)
                 cv2.namedWindow("De duplo click na abelha e tecle c ")
                 cv2.setMouseCallback("De duplo click na abelha e tecle c ", click)
@@ -357,12 +357,12 @@ class Ui_MainWindow(object):
             im = niveis_de_cinza(im)
             im = passaAlta(im)
             reg = crescimento_regiao(point, im, 20)
-            max_blue = img[point[0],point[1]][1]
-            min_blue = img[point[0],point[1]][1]
-            max_green = img[point[0],point[1]][2]
-            min_green = img[point[0],point[1]][2]
-            max_red = img[point[0],point[1]][0]
-            min_red = img[point[0],point[1]][0]
+            max_blue = img[point[0], point[1]][1]
+            min_blue = img[point[0], point[1]][1]
+            max_green = img[point[0], point[1]][2]
+            min_green = img[point[0], point[1]][2]
+            max_red = img[point[0], point[1]][0]
+            min_red = img[point[0], point[1]][0]
             max_x = 0
             max_y = 0
             min_x = 10000000000
@@ -431,7 +431,7 @@ class Ui_MainWindow(object):
         global stop
         stop = True
         tempoReal = (int(self.minDuracao.text()) * 60) + (int(self.secDuracao.text()))
-        if(self.alturavideo.text() == '' and tempoReal > 10):
+        if self.alturavideo.text() == '' and tempoReal > 10:
             self.w = MyPopup()
             self.w.setGeometry(QRect(100, 100, 400, 200))
             self.w.show()
@@ -445,21 +445,21 @@ class Ui_MainWindow(object):
             self.progressBar.setVisible(True)
             global video, point, max_blue, min_blue, max_green, min_green, max_red, min_red
             altr = float(self.alturavideo.text())
-            kernel = np.ones((5 , 5), np.uint8)
+            kernel = np.ones((5, 5), np.uint8)
             ret, frame = video.read()
             alti = frame.shape[0]
             proporcao = altr/alti
             frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
-            cv2.imwrite("imcut.png",frame)
+            cv2.imwrite("imcut.png", frame)
             frame = cv2.imread('imcut.png')
-            frame = cv2.resize(frame,(406,280))
+            frame = cv2.resize(frame, (406,280))
             im_points = np.ones((frame.shape[0], frame.shape[1], 3)) * 255
-            ant = [point[1],point[0]]
-            d=0
+            ant = [point[1], point[0]]
+            d = 0
             l = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
             cont = 1
-            tempocaminhamento = 0
-            tempodescanco = 0
+            tempocaminhamento = 1
+            tempodescanco = 1
             pasta = "Resultados"
             if(not os.path.isdir(pasta)):
                 os.mkdir(pasta)
@@ -504,9 +504,13 @@ class Ui_MainWindow(object):
                 cachetempo += passo
                 if x!= 0 or y != 0:
                     if w < t_x and h < t_y:
-                        if cont>4:
-                            dant = math.sqrt((ant[0]-x+w//2)**2+(ant[1]-y+h//2)**2)
-                            if(dant > 2 * passo):
+                        if cont > 4:
+                            print(ant)
+                            dx = ant[0] - (x + (w // 2))
+                            dy = ant[1] - (y + (h // 2))
+                            dant = math.sqrt((dx ** 2) + (dy ** 2))
+                            print(dant)
+                            if(dant > 0.5 * passo):
                                 tempocaminhamento += cachetempo
                                 cachetempo = 0
                                 minvideocam = int((tempocaminhamento * tempoFrame) // 60)
@@ -520,13 +524,12 @@ class Ui_MainWindow(object):
                                 minvideodesc = int((tempodescanco * tempoFrame) // 60)
                                 secvideodesc = int((tempodescanco * tempoFrame) % 60)
                                 self.tempodescanco.setText(str(minvideodesc) + ":" + str(secvideodesc))
-                            cv2.line(im_points,(ant[0],ant[1]),(x+w//2, y + h//2),0)
-
-                            self.velocidademedia.setText(str((d*proporcao)/(tempocaminhamento * tempoFrame)))
-
-                            ant = (x+w//2, y+h//2)
-                        cv2.imwrite(pasta+"/point_ui.png",im_points)
+                            self.velocidademedia.setText(str((d * proporcao) / (tempocaminhamento * tempoFrame)))
+                        cv2.line(im_points, (ant[0], ant[1]), (x + (w // 2), y + (h // 2)), 0)
+                        ant = [x + (w // 2), y + (h // 2)]
+                        cv2.imwrite(pasta+"/point_ui.png", im_points)
                         cv2.rectangle(frame, (x, y), (x+w, y + h), (0, 255, 0), 2)
+
                 height, width, channel = frame.shape
                 bytesPerLine = 3 * width
                 qimg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888)
