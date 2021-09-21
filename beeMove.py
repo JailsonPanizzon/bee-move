@@ -335,7 +335,7 @@ class Ui_MainWindow(object):
             frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
             img = frame
             img = cv2.resize(img,(406,280))
-            cv2.imwrite("cut.png",img)
+            cv2.imwrite("data/cut.png",img)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
             qimg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
@@ -353,8 +353,8 @@ class Ui_MainWindow(object):
                 ret, frame = video.read()
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
                 frame = fix_Ilumination(frame)
-                cv2.imwrite("imcut.png", frame)
-                img = cv2.imread('imcut.png')
+                cv2.imwrite("data/imcut.png", frame)
+                img = cv2.imread('data/imcut.png')
                 img = cv2.resize(img, (406,280))
                 #img = cv2.imread(im_name)
                 cv2.namedWindow("De duplo click na abelha e tecle c ")
@@ -369,8 +369,8 @@ class Ui_MainWindow(object):
 
                         break
                 break
-            cv2.imwrite("p.png", img)
-            im =Image.open('p.png')
+            cv2.imwrite("data/p.png", img)
+            im =Image.open('data/p.png')
             im = niveis_de_cinza(im)
             im = passaAlta(im)
             reg = crescimento_regiao(point, im, int(self.corSelecaoAbelha.text()))
@@ -425,13 +425,13 @@ class Ui_MainWindow(object):
                 t_y = max_y-min_y
                 t_x *= 2
                 t_y *= 2
-                im.save("reg.png")
+                im.save("data/reg.png")
                 val = int(self.Limiarmascara.text())
                 t = 20
                 im = binaria(im, reg, max_red, max_green, max_blue, val)
-                im.save('bg.png')
-                cv2.imwrite("imcut.png", img)
-                img = cv2.imread('imcut.png')
+                im.save('data/bg.png')
+                cv2.imwrite("data/imcut.png", img)
+                img = cv2.imread('data/imcut.png')
                 img = soma_img(im, img)
                 height, width, channel = img.shape
                 bytesPerLine = 3 * width
@@ -439,9 +439,9 @@ class Ui_MainWindow(object):
                 pixmap = QtGui.QPixmap.fromImage(qimg)
                 self.label.setPixmap(pixmap)
 
-                cv2.imwrite('te.png', img)
+                cv2.imwrite('data/te.png', img)
         
-                im.save("reg.png")
+                im.save("data/reg.png")
                 time.sleep(1)
                 self.iniciar.setEnabled(True)
         else:
@@ -470,8 +470,8 @@ class Ui_MainWindow(object):
             alti = frame.shape[0]
             proporcao = altr/alti
             frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
-            cv2.imwrite("imcut.png", frame)
-            frame = cv2.imread('imcut.png')
+            cv2.imwrite("data/imcut.png", frame)
+            frame = cv2.imread('data/imcut.png')
             frame = cv2.resize(frame, (406,280))
             im_points = np.ones((frame.shape[0], frame.shape[1], 3)) * 255
             ant = [point[1], point[0]]
@@ -513,8 +513,8 @@ class Ui_MainWindow(object):
                 ret, frame = video.read()
             while (ret and stop):
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
-                #cv2.imwrite("imcut.png",frame)
-                #frame = cv2.imread('imcut.png')
+                #cv2.imwrite("data/imcut.png",frame)
+                #frame = cv2.imread('data/imcut.png')
                 frame = cv2.resize(frame,(406,280))
                 frame = fix_Ilumination(frame)
                 frame = soma_img(im,frame)

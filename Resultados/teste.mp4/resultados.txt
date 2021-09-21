@@ -1,0 +1,5 @@
+Distancia Percorrida : 88.36490250360409   (um)
+Tempo de caminhamento : 9:58   (MM:SS)
+Velocidade média : 0.14754934792074306   (um/s)
+Tempo de descanço : 0:0   (MM:SS)
+Tempo de processamento : 73.39030981063843   (SS)
