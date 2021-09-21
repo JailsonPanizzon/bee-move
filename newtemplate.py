@@ -13,6 +13,13 @@ import os.path
 global video
 global point
 global stop
+
+def fix_Ilumination(img1):
+    a = np.double(img1)
+    b = a + 25
+    img2 = np.uint8(b)
+    return img2
+
 def crescimento_regiao(cord,im,lim):
     px=im.load()
     cont=0
@@ -26,17 +33,18 @@ def crescimento_regiao(cord,im,lim):
         actual[1]=reg[cont][1]
         for i in (-1,0,1):
             y=i+actual[0]
-            if(y < im.size[0] and y>=0):
+            if(y < im.size[1] and y>=0):
                 for j in (-1,0,1):
-                    x=j+actual[1]
-                    if(x< im.size[1] and x>=0):
+                    x=j+actual[1]                  
+                    if(x< im.size[0] and x>=0):
                         if(not([y,x] in reg)):
                             distancia_find = math.sqrt((px[x,y]-px[actual[1],actual[0]])**2)
-
                             #distancia= math.sqrt((pow((px[y,x][0])-px[actual[0],actual[1]][0],2)+pow((px[y,x][1])-px[actual[0],actual[1]][1],2)+pow((px[y,x][2])-px[actual[0],actual[1]][2],2)))
                             #distancia_find=math.sqrt((pow((px[cord[0],cord[1]][0])-px[actual[0],actual[1]][0],2)+pow((px[cord[0],cord[1]][1])-px[actual[0],actual[1]][1],2)+pow((px[cord[0],cord[1]][2])-px[actual[0],actual[1]][2],2)))
                             if(distancia_find < lim ):
                                reg.append([y,x])
+                            if(len(reg) > (im.size[0]*im.size[1])/20):
+                                return reg
 
         cont+=1
     return reg
@@ -163,7 +171,7 @@ class Ui_MainWindow(object):
         self.carregar.setObjectName("carregar")
         self.gridLayout_3.addWidget(self.carregar, 0, 2, 1, 1)
         self.diretorio = QtWidgets.QLineEdit(self.groupBox_2)
-        self.diretorio.setText("")
+        self.diretorio.setText("(1).mp4")
         self.diretorio.setObjectName("diretorio")
         self.gridLayout_3.addWidget(self.diretorio, 0, 1, 1, 1)
         self.verticalLayout_2.addLayout(self.gridLayout_3)
@@ -182,7 +190,7 @@ class Ui_MainWindow(object):
         self.labelDuracaoVideo.setObjectName("labelDuracaoVideo")
         self.gridLayout_2.addWidget(self.labelDuracaoVideo, 4, 0, 1, 1)
         self.minDuracao = QtWidgets.QLineEdit(self.groupBox_2)
-        self.minDuracao.setText("00")
+        self.minDuracao.setText("10")
         self.minDuracao.setObjectName("minDuracao")
         self.gridLayout_2.addWidget(self.minDuracao, 4, 1, 1, 1)
         self.secDuracao = QtWidgets.QLineEdit(self.groupBox_2)
@@ -190,11 +198,18 @@ class Ui_MainWindow(object):
         self.secDuracao.setObjectName("secDuracao")
         self.gridLayout_2.addWidget(self.secDuracao, 4, 2, 1, 1)
         self.gridLayout_2.addWidget(self.labelLimiarmascara, 3, 0, 1, 1)
+        self.labelCorSelecao = QtWidgets.QLabel(self.groupBox_2)
+        self.labelCorSelecao.setObjectName("labelCorSelecao")
+        self.gridLayout_2.addWidget(self.labelCorSelecao, 0, 0, 1, 1)
+        self.corSelecaoAbelha = QtWidgets.QLineEdit(self.groupBox_2)
+        self.corSelecaoAbelha.setText("20")
+        self.corSelecaoAbelha.setObjectName("corSelecaoAbelha")
+        self.gridLayout_2.addWidget(self.corSelecaoAbelha, 0, 1, 1, 1)
         self.labelAltura = QtWidgets.QLabel(self.groupBox_2)
         self.labelAltura.setObjectName("labelAltura")
         self.gridLayout_2.addWidget(self.labelAltura, 1, 0, 1, 1)
         self.alturavideo = QtWidgets.QLineEdit(self.groupBox_2)
-        self.alturavideo.setText("")
+        self.alturavideo.setText("9")
         self.alturavideo.setObjectName("alturavideo")
         self.gridLayout_2.addWidget(self.alturavideo, 1, 1, 1, 1)
         self.limiarcor = QtWidgets.QLineEdit(self.groupBox_2)
@@ -288,6 +303,7 @@ class Ui_MainWindow(object):
         self.labelLimiarmascara.setText(_translate("MainWindow", "Limiar de mascarade ruidos"))
         self.labelDuracaoVideo.setText(_translate("MainWindow", "Duração do vídeo"))
         self.labelAltura.setText(_translate("MainWindow", "Altura do video"))
+        self.labelCorSelecao.setText(_translate("MainWindow", "Limiar de cor de seleção da abelha"))
         self.labelLimiarcor.setText(_translate("MainWindow", "Limiar de cor"))
         self.selecionarAelha.setText(_translate("MainWindow", "Selecionar abelha"))
         self.iniciar.setText(_translate("MainWindow", "Iniciar"))
@@ -332,10 +348,11 @@ class Ui_MainWindow(object):
 
     def selecionar(self):
         global video, point, t_x, t_y, im, max_blue, min_blue, max_green, min_green, max_red, min_red, media_green, media_red, media_blue
-        if(self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != '' and self.minDuracao.text() != '' and self.secDuracao.text() != ''):
+        if(self.corSelecaoAbelha.text() != '' and self.limiarcor.text() != '' and self.Limiarmascara.text() != '' and self.alturavideo.text() != '' and self.minDuracao.text() != '' and self.secDuracao.text() != ''):
             while True:
                 ret, frame = video.read()
                 frame = frame[int(frame.shape[0]*0.0):int(frame.shape[0]*1),int(frame.shape[1]*0.10):int(frame.shape[1]*0.90)]
+                frame = fix_Ilumination(frame)
                 cv2.imwrite("imcut.png", frame)
                 img = cv2.imread('imcut.png')
                 img = cv2.resize(img, (406,280))
@@ -356,74 +373,77 @@ class Ui_MainWindow(object):
             im =Image.open('p.png')
             im = niveis_de_cinza(im)
             im = passaAlta(im)
-            reg = crescimento_regiao(point, im, 20)
-            max_blue = img[point[0], point[1]][1]
-            min_blue = img[point[0], point[1]][1]
-            max_green = img[point[0], point[1]][2]
-            min_green = img[point[0], point[1]][2]
-            max_red = img[point[0], point[1]][0]
-            min_red = img[point[0], point[1]][0]
-            max_x = 0
-            max_y = 0
-            min_x = 10000000000
-            min_y = 10000000000
-            soma_red = int(img[point[0], point[1]][0])
-            soma_blue = int(img[point[0], point[1]][1])
-            soma_green = int(img[point[0], point[1]][2])
-            total = 1
-            for i in reg:
-                color = img[i[0], i[1]]
-                soma_red += int(color[0])
-                soma_blue += int(color[1])
-                soma_green += int(color[2])
-                total += 1
-                if max_blue < color[1]:
-                    max_blue = color[1]
-                if min_blue > color[1] and color[1] > 0:
-                    min_blue = color[1]
-                if max_green < color[2]:
-                    max_green = color[2]
-                if min_green > color[2] and color[2] > 0:
-                    min_green = color[2]
-                if max_red < color[0]:
-                    max_red = color[0]
-                if min_red > color[0] and color[0] > 0:
-                    min_red = color[0]
-                if max_x < i[0]:
-                    max_x = i[0]
-                if min_x > i[0]:
-                    min_x = i[0]
-                if max_y < i[1]:
-                    max_y = i[1]
-                if min_y > i[1]:
-                    min_y = i[1]
-                img[i[0], i[1]] = (0, 255, 0)
-            media_green = soma_green / total
-            media_red = soma_red / total
-            media_blue = soma_blue / total
-            t_x = max_x-min_x
-            t_y = max_y-min_y
-            t_x *= 2
-            t_y *= 2
-            im.save("reg.png")
-            val = int(self.Limiarmascara.text())
-            t = 20
-            im = binaria(im, reg, max_red, max_green, max_blue, val)
-            im.save('bg.png')
-            cv2.imwrite("imcut.png", img)
-            img = cv2.imread('imcut.png')
-            img = soma_img(im, img)
-            height, width, channel = img.shape
-            bytesPerLine = 3 * width
-            qimg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            pixmap = QtGui.QPixmap.fromImage(qimg)
-            self.label.setPixmap(pixmap)
+            reg = crescimento_regiao(point, im, int(self.corSelecaoAbelha.text()))
+            if len(reg) < 2:
+                print("O ponto informado e limiares fornecidos não foram suficientes para demarcar a área da abelha")
+            else:
+                max_blue = img[point[0], point[1]][1]
+                min_blue = img[point[0], point[1]][1]
+                max_green = img[point[0], point[1]][2]
+                min_green = img[point[0], point[1]][2]
+                max_red = img[point[0], point[1]][0]
+                min_red = img[point[0], point[1]][0]
+                max_x = 0
+                max_y = 0
+                min_x = 10000000000
+                min_y = 10000000000
+                soma_red = int(img[point[0], point[1]][0])
+                soma_blue = int(img[point[0], point[1]][1])
+                soma_green = int(img[point[0], point[1]][2])
+                total = 1
+                for i in reg:
+                    color = img[i[0], i[1]]
+                    soma_red += int(color[0])
+                    soma_blue += int(color[1])
+                    soma_green += int(color[2])
+                    total += 1
+                    if max_blue < color[1]:
+                        max_blue = color[1]
+                    if min_blue > color[1] and color[1] > 0:
+                        min_blue = color[1]
+                    if max_green < color[2]:
+                        max_green = color[2]
+                    if min_green > color[2] and color[2] > 0:
+                        min_green = color[2]
+                    if max_red < color[0]:
+                        max_red = color[0]
+                    if min_red > color[0] and color[0] > 0:
+                        min_red = color[0]
+                    if max_x < i[0]:
+                        max_x = i[0]
+                    if min_x > i[0]:
+                        min_x = i[0]
+                    if max_y < i[1]:
+                        max_y = i[1]
+                    if min_y > i[1]:
+                        min_y = i[1]
+                    img[i[0], i[1]] = (0, 255, 0)
+                media_green = soma_green / total
+                media_red = soma_red / total
+                media_blue = soma_blue / total
+                t_x = max_x-min_x
+                t_y = max_y-min_y
+                t_x *= 2
+                t_y *= 2
+                im.save("reg.png")
+                val = int(self.Limiarmascara.text())
+                t = 20
+                im = binaria(im, reg, max_red, max_green, max_blue, val)
+                im.save('bg.png')
+                cv2.imwrite("imcut.png", img)
+                img = cv2.imread('imcut.png')
+                img = soma_img(im, img)
+                height, width, channel = img.shape
+                bytesPerLine = 3 * width
+                qimg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
+                pixmap = QtGui.QPixmap.fromImage(qimg)
+                self.label.setPixmap(pixmap)
 
-            cv2.imwrite('te.png', img)
-    
-            im.save("reg.png")
-            time.sleep(1)
-            self.iniciar.setEnabled(True)
+                cv2.imwrite('te.png', img)
+        
+                im.save("reg.png")
+                time.sleep(1)
+                self.iniciar.setEnabled(True)
         else:
             print("Informe todos os valores ")
 
@@ -484,7 +504,6 @@ class Ui_MainWindow(object):
                 min_colors[2] = int(media_red) - val
             rangomax = np.array(max_colors)
             rangomin = np.array(min_colors)
-
             tempoFrame = tempoReal/l
             passo = 5
             cachetempo = 0
@@ -497,19 +516,19 @@ class Ui_MainWindow(object):
                 #cv2.imwrite("imcut.png",frame)
                 #frame = cv2.imread('imcut.png')
                 frame = cv2.resize(frame,(406,280))
+                frame = fix_Ilumination(frame)
                 frame = soma_img(im,frame)
                 mask = cv2.inRange(frame, rangomin, rangomax)
                 opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
                 x, y, w, h = cv2.boundingRect(opening)
                 cachetempo += passo
+                cv2.rectangle(frame, (x, y), (x+w, y + h), (255, 0, 0), 2)
                 if x!= 0 or y != 0:
                     if w < t_x and h < t_y:
                         if cont > 4:
-                            print(ant)
                             dx = ant[0] - (x + (w // 2))
                             dy = ant[1] - (y + (h // 2))
                             dant = math.sqrt((dx ** 2) + (dy ** 2))
-                            print(dant)
                             if(dant > 0.5 * passo):
                                 tempocaminhamento += cachetempo
                                 cachetempo = 0
@@ -529,7 +548,7 @@ class Ui_MainWindow(object):
                         ant = [x + (w // 2), y + (h // 2)]
                         cv2.imwrite(pasta+"/point_ui.png", im_points)
                         cv2.rectangle(frame, (x, y), (x+w, y + h), (0, 255, 0), 2)
-
+                        
                 height, width, channel = frame.shape
                 bytesPerLine = 3 * width
                 qimg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888)
